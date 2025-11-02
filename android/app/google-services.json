@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "562628408067",
+    "project_id": "cybersecma-80b2e",
+    "storage_bucket": "cybersecma-80b2e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562628408067:android:02fc6b2b4a6fb4a12faf36",
+        "android_client_info": {
+          "package_name": "com.cybersecma.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdxuk0JpQh-HegzhNMGSbe_hqzG6OX_Bk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
