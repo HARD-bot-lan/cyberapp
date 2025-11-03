@@ -1,0 +1,68 @@
+name: Build iOS Flutter App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      # 1️⃣ Checkout the repo
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Set up Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      # 3️⃣ Install dependencies
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # 4️⃣ Clean previous builds
+      - name: Clean build
+        run: flutter clean
+
+      # 5️⃣ Build iOS app (without codesigning)
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
+      # 6️⃣ Archive app
+      - name: Archive iOS app
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace \
+                     -scheme Runner \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     -archivePath build/ios/Runner.xcarchive archive
+
+      # 7️⃣ Export IPA (requires an ExportOptions.plist)
+      - name: Export IPA
+        run: |
+          cat > ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+                     -archivePath build/ios/Runner.xcarchive \
+                     -exportOptionsPlist ios/ExportOptions.plist \
+                     -exportPath build/ios/ipa
+
+      # 8️⃣ Upload the IPA as an artifact
+      - name: Upload IPA
+        uses: actions/upload-artifact@v3
+        with:
+          name: Runner.ipa
+          path: build/ios/ipa/Runner.ipa
+          
