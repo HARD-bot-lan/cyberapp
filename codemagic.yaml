@@ -5,22 +5,26 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      vars:
-        FLUTTER_CHANNEL: stable
     scripts:
       - name: Install dependencies
-        script: |
-          flutter pub get
+        script: flutter pub get
       - name: Clean previous builds
+        script: flutter clean
+      - name: Build iOS app
+        script: flutter build ios --release --no-codesign
+      - name: Archive iOS app
         script: |
-          flutter clean
-      - name: Build iOS App
+          xcodebuild -workspace ios/Runner.xcworkspace \
+                     -scheme Runner \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     -archivePath build/ios/Runner.xcarchive archive
+      - name: Export IPA
         script: |
-          flutter build ios --release --no-codesign
-      - name: Create IPA
-        script: |
-          mkdir -p build/ios/ipa
-          xcrun -sdk iphoneos PackageApplication -v build/ios/iphoneos/Runner.app -o build/ios/ipa/Runner.ipa
+          xcodebuild -exportArchive \
+                     -archivePath build/ios/Runner.xcarchive \
+                     -exportOptionsPlist ios/ExportOptions.plist \
+                     -exportPath build/ios/ipa
     artifacts:
       - build/ios/ipa/Runner.ipa
     publishing:
